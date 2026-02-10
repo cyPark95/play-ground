@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="pcy.study.server.mapper.UserMapper">
+
+    <insert id="insertUser" useGeneratedKeys="true" keyProperty="id" parameterType="pcy.study.server.domain.User">
+    <![CDATA[
+    /* pcy.study.server.domain.User.insertUser */
+        INSERT INTO user ( userId
+                         , password
+                         , nickname
+                         , isWithDraw
+                         , isAdmin
+                         , createdAt)
+        VALUES ( #{userId}
+               , #{password}
+               , #{nickname}
+               , #{isWithDraw}
+               , #{isAdmin}
+               , NOW())
+    ]]>
+    </insert>
+
+    <select id="findById" resultType="pcy.study.server.domain.User">
+    <![CDATA[
+    /* pcy.study.server.domain.User.findById */
+        SELECT id
+             , userId
+             , password
+             , nickname
+             , isWithDraw
+             , isAdmin
+             , createdAt
+        FROM user
+        WHERE id = #{id}
+    ]]>
+    </select>
+
+    <select id="findByIdAndPassword" resultType="pcy.study.server.domain.User">
+    <![CDATA[
+    /* pcy.study.server.domain.User.findByIdAndPassword */
+        SELECT id
+             , userId
+             , password
+             , nickname
+             , isWithDraw
+             , isAdmin
+             , createdAt
+        FROM user
+        WHERE id = #{id}
+          AND password = #{password}
+    ]]>
+    </select>
+
+    <select id="findByUserIdAndPassword" resultType="pcy.study.server.domain.User">
+    <![CDATA[
+    /* pcy.study.server.domain.User.findByUserIdAndPassword */
+        SELECT id
+             , userId
+             , password
+             , nickname
+             , isWithDraw
+             , isAdmin
+             , createdAt
+        FROM user
+        WHERE userId = #{userId}
+          AND password = #{password}
+    ]]>
+    </select>
+
+    <select id="findByUserId" resultType="pcy.study.server.domain.User">
+    <![CDATA[
+    /* pcy.study.server.domain.User.findByUserId */
+        SELECT id
+             , userId
+             , password
+             , nickname
+             , isWithDraw
+             , isAdmin
+             , createdAt
+        FROM user
+        WHERE userId = #{userId}
+    ]]>
+    </select>
+
+    <select id="existUserId" resultType="boolean">
+    <![CDATA[
+    /* pcy.study.server.domain.User.existUserId */
+        SELECT IF(COUNT(*) > 0, 1, 0)
+        FROM user
+        WHERE userId = #{userId}
+    ]]>
+    </select>
+
+    <update id="updateUser" parameterType="pcy.study.server.domain.User">
+    <![CDATA[
+    /* pcy.study.server.domain.User.updateUser */
+        UPDATE user
+        SET password = #{password},
+            nickname = #{nickname},
+            isWithDraw = #{isWithDraw},
+            isAdmin = #{isAdmin}
+        WHERE id = #{id}
+    ]]>
+    </update>
+
+    <delete id="deleteUser">
+    <![CDATA[
+    /* pcy.study.server.domain.User.deleteUser */
+        DELETE
+        FROM user
+        WHERE id = #{id}
+    ]]>
+    </delete>
+
+</mapper>
