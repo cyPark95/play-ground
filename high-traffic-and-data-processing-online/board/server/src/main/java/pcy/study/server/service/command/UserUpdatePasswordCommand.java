@@ -1,7 +1,7 @@
 package pcy.study.server.service.command;
 
 public record UserUpdatePasswordCommand(
-        String userId,
+        Long id,
         String beforePassword,
         String afterPassword
 ) {

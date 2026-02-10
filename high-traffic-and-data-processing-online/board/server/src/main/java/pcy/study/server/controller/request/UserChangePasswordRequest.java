@@ -3,14 +3,13 @@ package pcy.study.server.controller.request;
 import pcy.study.server.service.command.UserUpdatePasswordCommand;
 
 public record UserChangePasswordRequest(
-        String userId,
         String beforePassword,
         String afterPassword
 ) {
 
-    public UserUpdatePasswordCommand toCommand() {
+    public UserUpdatePasswordCommand toCommand(Long id) {
         return new UserUpdatePasswordCommand(
-                userId,
+                id,
                 beforePassword,
                 afterPassword
         );

@@ -59,10 +59,10 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void updatePassword(UserUpdatePasswordCommand command) {
+    public UserInfo updatePassword(UserUpdatePasswordCommand command) {
         String encryptedBeforePassword = SHA256Util.encryptSHA256(command.beforePassword());
 
-        User user = userMapper.findByUserIdAndPassword(command.userId(), encryptedBeforePassword);
+        User user = userMapper.findByIdAndPassword(command.id(), encryptedBeforePassword);
         if(user == null) {
             throw new IllegalArgumentException("비밀번호 수정에 실패했습니다.\n Params: %s".formatted(command));
         }
@@ -70,6 +70,8 @@ public class UserServiceImpl implements UserService {
         String encryptedAfterPassword = SHA256Util.encryptSHA256(command.afterPassword());
         user.changePassword(encryptedAfterPassword);
         userMapper.updateUser(user);
+
+        return UserInfo.from(user);
     }
 
     @Override

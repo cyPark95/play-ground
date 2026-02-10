@@ -5,6 +5,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import pcy.study.server.aop.LoginCheck;
 import pcy.study.server.controller.request.LoginRequest;
 import pcy.study.server.controller.request.SignUpRequest;
 import pcy.study.server.controller.request.UserChangePasswordRequest;
@@ -44,24 +45,24 @@ public class UserController {
     }
 
     @GetMapping
-    public UserResponse userInfo(HttpSession session) {
-        Long id = getSessionLoginId(session);
+    @LoginCheck
+    public UserResponse userInfo(Long id) {
         UserInfo userInfo = userService.getUser(id);
         return UserResponse.from(userInfo);
     }
 
     @PatchMapping("/password")
+    @LoginCheck
     @ResponseBody
-    public UserResponse changePassword(@RequestBody UserChangePasswordRequest changePasswordRequest) {
-        UserUpdatePasswordCommand updatePasswordCommand = changePasswordRequest.toCommand();
-        userService.updatePassword(updatePasswordCommand);
-        UserInfo userInfo = userService.login(changePasswordRequest.userId(), changePasswordRequest.afterPassword());
+    public UserResponse changePassword(Long id, @RequestBody UserChangePasswordRequest changePasswordRequest) {
+        UserUpdatePasswordCommand updatePasswordCommand = changePasswordRequest.toCommand(id);
+        UserInfo userInfo = userService.updatePassword(updatePasswordCommand);
         return UserResponse.from(userInfo);
     }
 
     @DeleteMapping
-    public void remove(@Valid @RequestBody UserRemoveRequest removeRequest, HttpSession session) {
-        Long id = getSessionLoginId(session);
+    @LoginCheck
+    public void remove(Long id, @Valid @RequestBody UserRemoveRequest removeRequest) {
         userService.delete(id, removeRequest.password());
     }
 
@@ -71,13 +72,5 @@ public class UserController {
         } else {
             SessionUtil.setLoginUserId(session, userInfo.id());
         }
-    }
-
-    private Long getSessionLoginId(HttpSession session) {
-        Long id = SessionUtil.getLoginUserId(session);
-        if (id == null) {
-            id = SessionUtil.getLoginAdminId(session);
-        }
-        return id;
     }
 }
