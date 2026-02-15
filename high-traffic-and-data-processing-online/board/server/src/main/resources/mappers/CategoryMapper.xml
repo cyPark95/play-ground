@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="pcy.study.server.mapper.CategoryMapper">
+
+    <insert id="insertCategory" useGeneratedKeys="true" keyProperty="id"
+            parameterType="pcy.study.server.domain.Category">
+    <![CDATA[
+        INSERT INTO category ( id
+                             , name)
+        VALUES ( #{id}
+               , #{name})
+    ]]>
+    </insert>
+
+    <select id="findById" resultType="pcy.study.server.domain.Category">
+    <![CDATA[
+        SELECT id
+             , name
+        FROM category
+        WHERE id = #{id}
+    ]]>
+    </select>
+
+    <update id="updateCategory" parameterType="pcy.study.server.domain.Category">
+    <![CDATA[
+        UPDATE category
+        SET name = #{name}
+        WHERE id = #{id}
+    ]]>
+    </update>
+
+    <delete id="deleteCategory">
+    <![CDATA[
+        DELETE
+        FROM category
+        WHERE id = #{id}
+    ]]>
+    </delete>
+
+</mapper>
