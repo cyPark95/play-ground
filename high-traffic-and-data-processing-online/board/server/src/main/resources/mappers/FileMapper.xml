@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="pcy.study.server.mapper.FileMapper">
+
+    <insert id="insertFile" useGeneratedKeys="true" keyProperty="file.id"
+            parameterType="pcy.study.server.domain.Post">
+    <![CDATA[
+        INSERT INTO file ( path
+                         , name
+                         , extension
+                         , postId)
+        VALUES ( #{file.path}
+               , #{file.name}
+               , #{file.extension}
+               , #{id})
+    ]]>
+    </insert>
+
+    <select id="findByPostId" resultType="pcy.study.server.domain.File">
+    <![CDATA[
+        SELECT id
+             , path
+             , name
+             , extension
+             , postId
+        FROM file
+        WHERE postId = #{postId}
+    ]]>
+    </select>
+
+    <delete id="deleteFileByPostId">
+    <![CDATA[
+        DELETE
+        FROM file
+        WHERE postId = #{postId}
+    ]]>
+    </delete>
+
+</mapper>
+

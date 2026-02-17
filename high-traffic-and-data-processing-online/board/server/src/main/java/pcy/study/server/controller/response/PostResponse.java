@@ -15,6 +15,9 @@ public record PostResponse(
         Long categoryId,
         String categoryName,
         Long fileId,
+        String filePath,
+        String fileName,
+        String fileExtension,
         LocalDateTime createdAt
 ) {
 
@@ -30,6 +33,9 @@ public record PostResponse(
                 info.categoryId(),
                 info.categoryName(),
                 info.fileId(),
+                info.filePath(),
+                info.fileName(),
+                info.fileExtension(),
                 info.createdAt()
         );
     }

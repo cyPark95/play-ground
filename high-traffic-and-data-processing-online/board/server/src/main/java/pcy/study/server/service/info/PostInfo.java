@@ -1,6 +1,7 @@
 package pcy.study.server.service.info;
 
 import pcy.study.server.domain.Category;
+import pcy.study.server.domain.File;
 import pcy.study.server.domain.Post;
 import pcy.study.server.domain.User;
 
@@ -17,10 +18,13 @@ public record PostInfo(
         Long categoryId,
         String categoryName,
         Long fileId,
+        String filePath,
+        String fileName,
+        String fileExtension,
         LocalDateTime createdAt
 ) {
 
-    public static PostInfo from(Post post, User user, Category category) {
+    public static PostInfo from(Post post, User user, Category category, File file) {
         return new PostInfo(
                 post.getId(),
                 post.getName(),
@@ -31,7 +35,10 @@ public record PostInfo(
                 user.getNickname(),
                 category.getId(),
                 category.getName(),
-                post.getFileId(),
+                file.getId(),
+                file.getPath(),
+                file.getName(),
+                file.getExtension(),
                 post.getCreatedAt()
         );
     }

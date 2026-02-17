@@ -7,7 +7,7 @@ public record PostRegisterRequest(
         String contents,
         boolean isAdmin,
         Long categoryId,
-        Long fileId
+        FileRegisterRequest fileRegisterRequest
 ) {
 
     public PostSaveCommand toCommand(Long userId) {
@@ -17,7 +17,7 @@ public record PostRegisterRequest(
                 isAdmin,
                 userId,
                 categoryId,
-                fileId
+                fileRegisterRequest.toCommand()
         );
     }
 }

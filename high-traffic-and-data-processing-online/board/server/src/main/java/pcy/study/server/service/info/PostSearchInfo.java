@@ -27,9 +27,15 @@ public class PostSearchInfo {
 
     private final Long fileId;
 
+    private final String filePath;
+
+    private final String fileName;
+
+    private final String fileExtension;
+
     private final LocalDateTime createdAt;
 
-    public PostSearchInfo(Long id, String name, String contents, boolean isAdmin, int views, Long userId, String userNickname, Long categoryId, String categoryName, Long fileId, LocalDateTime createdAt) {
+    public PostSearchInfo(Long id, String name, String contents, boolean isAdmin, int views, Long userId, String userNickname, Long categoryId, String categoryName, Long fileId, String filePath, String fileName, String fileExtension, LocalDateTime createdAt) {
         this.id = id;
         this.name = name;
         this.contents = contents;
@@ -40,6 +46,9 @@ public class PostSearchInfo {
         this.categoryId = categoryId;
         this.categoryName = categoryName;
         this.fileId = fileId;
+        this.filePath = filePath;
+        this.fileName = fileName;
+        this.fileExtension = fileExtension;
         this.createdAt = createdAt;
     }
 }

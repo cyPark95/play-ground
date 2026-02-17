@@ -1,11 +1,16 @@
 package pcy.study.server.domain;
 
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import pcy.study.server.service.command.PostUpdateCommand;
 
 import java.time.LocalDateTime;
 
 @Getter
+@Setter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Post {
 
     private Long id;
@@ -18,36 +23,25 @@ public class Post {
 
     private int views;
 
+    private File file;
+
     private Long userId;
 
     private Long categoryId;
-
-    private Long fileId;
 
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;
 
-    public Post(Long id, String name, String contents, boolean isAdmin, int views, Long userId, Long categoryId, Long fileId, LocalDateTime createdAt, LocalDateTime updatedAt) {
-        this.id = id;
-        this.name = name;
-        this.contents = contents;
-        this.isAdmin = isAdmin;
-        this.views = views;
-        this.userId = userId;
-        this.categoryId = categoryId;
-        this.fileId = fileId;
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
-    }
+    private boolean isChangeFile;
 
-    public Post(String name, String contents, boolean isAdmin, Long userId, Long categoryId, Long fileId) {
+    public Post(String name, String contents, boolean isAdmin, Long userId, Long categoryId, File file) {
         this.name = name;
         this.contents = contents;
         this.isAdmin = isAdmin;
         this.userId = userId;
         this.categoryId = categoryId;
-        this.fileId = fileId;
+        this.file = file;
 
         this.views = 0;
         this.createdAt = LocalDateTime.now();
@@ -58,14 +52,19 @@ public class Post {
         this.name = updateCommand.name();
         this.contents = updateCommand.contents();
         this.isAdmin = updateCommand.isAdmin();
-        this.views = updateCommand.views();
-        this.userId = updateCommand.userId();
-        this.fileId = updateCommand.fileId();
-
         this.updatedAt = LocalDateTime.now();
+
+        if (updateCommand.fileSaveCommand() != null) {
+            this.file = updateCommand.fileSaveCommand().toDomain();
+            this.isChangeFile = true;
+        }
     }
 
     public boolean canBeDeletedBy(Long userId) {
         return this.userId.equals(userId);
+    }
+
+    public boolean hasFile() {
+        return this.file != null;
     }
 }

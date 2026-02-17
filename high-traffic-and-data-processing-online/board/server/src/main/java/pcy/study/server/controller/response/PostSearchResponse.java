@@ -15,6 +15,9 @@ public record PostSearchResponse(
         Long categoryId,
         String categoryName,
         Long fileId,
+        String filePath,
+        String fileName,
+        String fileExtension,
         LocalDateTime createdAt
 ) {
 
@@ -30,6 +33,9 @@ public record PostSearchResponse(
                 info.getCategoryId(),
                 info.getCategoryName(),
                 info.getFileId(),
+                info.getFilePath(),
+                info.getFileName(),
+                info.getFileExtension(),
                 info.getCreatedAt()
         );
     }

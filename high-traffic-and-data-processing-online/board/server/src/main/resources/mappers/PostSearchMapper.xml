@@ -10,15 +10,19 @@
              , p.contents
              , p.isAdmin
              , p.views
-             , u.id       AS userId
-             , u.nickname AS userNickname
-             , c.id       AS categoryId
-             , c.name     AS categoryName
-             , p.fileId
+             , u.id        AS userId
+             , u.nickname  AS userNickname
+             , c.id        AS categoryId
+             , c.name      AS categoryName
+             , f.id        AS fileId
+             , f.path      AS filePath
+             , f.name      AS fileName
+             , f.extension AS fileExtension
              , p.createdAt
         FROM post p
                  JOIN user u ON u.id = p.userId
                  JOIN category c ON c.id = p.categoryId
+                 LEFT JOIN file f ON f.postId = p.id
         WHERE 1 = 1
     ]]>
         <if test="name != null and name != ''">

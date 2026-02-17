@@ -6,8 +6,7 @@ public record PostModifyRequest(
         String name,
         String contents,
         boolean isAdmin,
-        int views,
-        Long fileId
+        FileRegisterRequest fileRegisterRequest
 ) {
 
     public PostUpdateCommand toCommand(Long postId, Long userId) {
@@ -16,9 +15,8 @@ public record PostModifyRequest(
                 name,
                 contents,
                 isAdmin,
-                views,
                 userId,
-                fileId
+                fileRegisterRequest.toCommand()
         );
     }
 }

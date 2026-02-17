@@ -1,12 +1,11 @@
 package pcy.study.server.service.command;
 
 public record PostUpdateCommand(
-        Long id,
+        Long postId,
         String name,
         String contents,
         boolean isAdmin,
-        int views,
         Long userId,
-        Long fileId
+        FileSaveCommand fileSaveCommand
 ) {
 }

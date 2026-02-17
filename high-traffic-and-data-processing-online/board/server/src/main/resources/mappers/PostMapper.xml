@@ -12,7 +12,6 @@
                          , views
                          , userId
                          , categoryId
-                         , fileId
                          , createdAt
                          , updatedAt)
         VALUES ( #{name}
@@ -21,42 +20,70 @@
                , #{views}
                , #{userId}
                , #{categoryId}
-               , #{fileId}
                , NOW()
                , NOW())
     ]]>
     </insert>
 
-    <select id="findById" resultType="pcy.study.server.domain.Post">
+    <resultMap id="postResultMap" type="pcy.study.server.domain.Post">
+
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="contents" column="contents"/>
+        <result property="admin" column="isAdmin"/>
+        <result property="views" column="views"/>
+        <result property="userId" column="userId"/>
+        <result property="categoryId" column="categoryId"/>
+        <result property="createdAt" column="createdAt"/>
+        <result property="updatedAt" column="updatedAt"/>
+
+        <association property="file" javaType="pcy.study.server.domain.File">
+            <id property="id" column="fileId"/>
+            <result property="path" column="path"/>
+            <result property="name" column="fileName"/>
+            <result property="extension" column="extension"/>
+        </association>
+
+    </resultMap>
+
+    <select id="findById" resultMap="postResultMap">
     <![CDATA[
-        SELECT id
-             , name
-             , contents
-             , isAdmin
-             , views
-             , userId
-             , categoryId
-             , fileId
-             , createdAt
-             , updatedAt
-        FROM post
-        WHERE id = #{id}
+        SELECT p.id
+             , p.name
+             , p.contents
+             , p.isAdmin
+             , p.views
+             , p.userId
+             , p.categoryId
+             , p.createdAt
+             , p.updatedAt
+             , f.id   AS fileId
+             , f.path
+             , f.name AS fileName
+             , f.extension
+        FROM post p
+                 LEFT JOIN file f ON f.postId = p.id
+        WHERE p.id = #{id}
     ]]>
     </select>
 
-    <select id="findByUserId" resultType="pcy.study.server.domain.Post">
+    <select id="findByUserId" resultMap="postResultMap">
     <![CDATA[
-        SELECT id
-             , name
-             , contents
-             , isAdmin
-             , views
-             , userId
-             , categoryId
-             , fileId
-             , createdAt
-             , updatedAt
-        FROM post
+        SELECT p.id
+             , p.name
+             , p.contents
+             , p.isAdmin
+             , p.views
+             , p.userId
+             , p.categoryId
+             , p.createdAt
+             , p.updatedAt
+             , f.id   AS fileId
+             , f.path
+             , f.name AS fileName
+             , f.extension
+        FROM post p
+                 LEFT JOIN file f ON f.postId = p.id
         WHERE userId = #{userId}
     ]]>
     </select>
@@ -69,7 +96,6 @@
           , isAdmin   = #{isAdmin}
           , views     = #{views}
           , userId    = #{userId}
-          , fileId    = #{fileId}
           , updatedAt = NOW()
         WHERE id = #{id}
     ]]>

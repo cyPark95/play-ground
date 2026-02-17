@@ -12,9 +12,11 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 import pcy.study.server.controller.request.SearchPostRequest;
 import pcy.study.server.domain.Category;
+import pcy.study.server.domain.File;
 import pcy.study.server.domain.Post;
 import pcy.study.server.domain.User;
 import pcy.study.server.mapper.CategoryMapper;
+import pcy.study.server.mapper.FileMapper;
 import pcy.study.server.mapper.PostMapper;
 import pcy.study.server.mapper.UserMapper;
 import pcy.study.server.service.command.CategorySortStatus;
@@ -45,6 +47,10 @@ class PostSearchControllerTest {
     @Autowired
     private PostMapper postMapper;
 
+    @Autowired
+    private FileMapper fileMapper;
+
+    private File file;
     private Post post;
     private User user;
     private Category category;
@@ -59,8 +65,10 @@ class PostSearchControllerTest {
         category = new Category("Category");
         categoryMapper.insertCategory(category);
 
-        post = new Post("Title", "Contents", false, user.getId(), category.getId(), null);
+        file = new File("/path", "old1.txt", "txt");
+        post = new Post("Title", "Contents", false, user.getId(), category.getId(), file);
         postMapper.insertPost(post);
+        fileMapper.insertFile(post);
 
         var firstPost = new Post("Title1", "Contents1", false, user.getId(), category.getId(), null);
         postMapper.insertPost(firstPost);
@@ -89,7 +97,10 @@ class PostSearchControllerTest {
                 .andExpect(jsonPath("$[2].userNickname").value(user.getNickname()))
                 .andExpect(jsonPath("$[2].categoryId").value(category.getId()))
                 .andExpect(jsonPath("$[2].categoryName").value(category.getName()))
-                .andExpect(jsonPath("$[2].fileId").doesNotExist())
+                .andExpect(jsonPath("$[2].fileId").value(file.getId()))
+                .andExpect(jsonPath("$[2].filePath").value(file.getPath()))
+                .andExpect(jsonPath("$[2].fileName").value(file.getName()))
+                .andExpect(jsonPath("$[2].fileExtension").value(file.getExtension()))
                 .andExpect(jsonPath("$[2].createdAt").isNotEmpty())
         ;
     }

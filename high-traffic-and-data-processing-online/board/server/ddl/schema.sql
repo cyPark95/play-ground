@@ -35,6 +35,18 @@ CREATE TABLE post
     CONSTRAINT fk_post_user FOREIGN KEY (userId) REFERENCES user (id)
 );
 
+-- file
+CREATE TABLE file
+(
+    id        INT AUTO_INCREMENT PRIMARY KEY,
+    path      VARCHAR(100) NOT NULL,
+    name      VARCHAR(45)  NOT NULL,
+    extension VARCHAR(45),
+    postId    INT,
+
+    CONSTRAINT fk_file_post FOREIGN KEY (postId) REFERENCES post (id)
+);
+
 -- tag
 CREATE TABLE tag
 (
@@ -52,18 +64,6 @@ CREATE TABLE postTag
 
     CONSTRAINT fk_postTag_post FOREIGN KEY (postId) REFERENCES post (id),
     CONSTRAINT fk_postTag_tag FOREIGN KEY (tagId) REFERENCES tag (id)
-);
-
--- file
-CREATE TABLE file
-(
-    id        INT AUTO_INCREMENT PRIMARY KEY,
-    path      VARCHAR(100) NOT NULL,
-    name      VARCHAR(45)  NOT NULL,
-    extension VARCHAR(45),
-    postId    INT,
-
-    CONSTRAINT fk_file_post FOREIGN KEY (postId) REFERENCES post (id)
 );
 
 -- comment

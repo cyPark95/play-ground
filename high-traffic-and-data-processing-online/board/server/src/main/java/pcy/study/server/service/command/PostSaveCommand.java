@@ -8,7 +8,7 @@ public record PostSaveCommand(
         boolean isAdmin,
         Long userId,
         Long categoryId,
-        Long fileId
+        FileSaveCommand fileSaveCommand
 ) {
 
     public Post toDomain() {
@@ -18,7 +18,7 @@ public record PostSaveCommand(
                 isAdmin,
                 userId,
                 categoryId,
-                fileId
+                fileSaveCommand.toDomain()
         );
     }
 }
