@@ -7,3 +7,16 @@ spring:
     url: jdbc:mysql://localhost:3306/board
     username: root
     password: admin
+
+  cache:
+    type: redis
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password:
+      expired:
+        defaultTime: 5
+      repositories:
+        enabled: false
