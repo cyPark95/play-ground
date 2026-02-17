@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="pcy.study.server.mapper.PostMapper">
+
+    <insert id="insertPost" useGeneratedKeys="true" keyProperty="id"
+            parameterType="pcy.study.server.domain.Post">
+    <![CDATA[
+        INSERT INTO post ( name
+                         , contents
+                         , isAdmin
+                         , views
+                         , userId
+                         , categoryId
+                         , fileId
+                         , createdAt
+                         , updatedAt)
+        VALUES ( #{name}
+               , #{contents}
+               , #{isAdmin}
+               , #{views}
+               , #{userId}
+               , #{categoryId}
+               , #{fileId}
+               , NOW()
+               , NOW())
+    ]]>
+    </insert>
+
+    <select id="findById" resultType="pcy.study.server.domain.Post">
+    <![CDATA[
+        SELECT id
+             , name
+             , contents
+             , isAdmin
+             , views
+             , userId
+             , categoryId
+             , fileId
+             , createdAt
+             , updatedAt
+        FROM post
+        WHERE id = #{id}
+    ]]>
+    </select>
+
+    <select id="findByUserId" resultType="pcy.study.server.domain.Post">
+    <![CDATA[
+        SELECT id
+             , name
+             , contents
+             , isAdmin
+             , views
+             , userId
+             , categoryId
+             , fileId
+             , createdAt
+             , updatedAt
+        FROM post
+        WHERE userId = #{userId}
+    ]]>
+    </select>
+
+    <update id="updatePost" parameterType="pcy.study.server.domain.Post">
+    <![CDATA[
+        UPDATE post
+        SET name      = #{name}
+          , contents  = #{contents}
+          , isAdmin   = #{isAdmin}
+          , views     = #{views}
+          , userId    = #{userId}
+          , fileId    = #{fileId}
+          , updatedAt = NOW()
+        WHERE id = #{id}
+    ]]>
+    </update>
+
+    <delete id="deletePost">
+    <![CDATA[
+        DELETE
+        FROM post
+        WHERE id = #{id}
+    ]]>
+    </delete>
+
+</mapper>
