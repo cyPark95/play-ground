@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="pcy.study.server.mapper.PostSearchMapper">
+
+    <select id="selectPosts" resultType="pcy.study.server.service.info.PostSearchInfo">
+    <![CDATA[
+        SELECT p.id
+             , p.name
+             , p.contents
+             , p.isAdmin
+             , p.views
+             , u.id       AS userId
+             , u.nickname AS userNickname
+             , c.id       AS categoryId
+             , c.name     AS categoryName
+             , p.fileId
+             , p.createdAt
+        FROM post p
+                 JOIN user u ON u.id = p.userId
+                 JOIN category c ON c.id = p.categoryId
+        WHERE 1 = 1
+    ]]>
+        <if test="name != null and name != ''">
+        <![CDATA[
+            AND p.name LIKE CONCAT('%', #{name}, '%')
+        ]]>
+        </if>
+        <if test="contents != null and contents != ''">
+        <![CDATA[
+            AND p.contents LIKE CONCAT('%', #{contents}, '%')
+        ]]>
+        </if>
+        <if test="categoryId != null">
+        <![CDATA[
+            AND p.categoryId = #{categoryId}
+        ]]>
+        </if>
+        <if test="userId != null">
+        <![CDATA[
+            AND u.userId = #{userId}
+        ]]>
+        </if>
+        <if test="sortStatus != null and sortStatus.name() == 'NEWEST'">
+        <![CDATA[
+            ORDER BY p.createdAt DESC, p.id DESC
+        ]]>
+        </if>
+        <if test="sortStatus != null and sortStatus.name() == 'OLDEST'">
+        <![CDATA[
+            ORDER BY p.createdAt, p.id
+        ]]>
+        </if>
+        <if test="sortStatus != null and sortStatus.name() == 'CATEGORIES'">
+        <![CDATA[
+            ORDER BY p.categoryId
+        ]]>
+        </if>
+    </select>
+
+</mapper>
