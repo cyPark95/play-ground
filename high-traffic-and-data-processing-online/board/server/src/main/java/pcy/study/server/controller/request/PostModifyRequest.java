@@ -2,11 +2,14 @@ package pcy.study.server.controller.request;
 
 import pcy.study.server.service.command.PostUpdateCommand;
 
+import java.util.List;
+
 public record PostModifyRequest(
         String name,
         String contents,
         boolean isAdmin,
-        FileRegisterRequest fileRegisterRequest
+        FileRegisterRequest fileRegisterRequest,
+        List<Long> tagIds
 ) {
 
     public PostUpdateCommand toCommand(Long postId, Long userId) {
@@ -16,7 +19,8 @@ public record PostModifyRequest(
                 contents,
                 isAdmin,
                 userId,
-                fileRegisterRequest.toCommand()
+                fileRegisterRequest != null ? fileRegisterRequest.toCommand() : null,
+                tagIds
         );
     }
 }

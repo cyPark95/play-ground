@@ -3,6 +3,7 @@ package pcy.study.server.controller.response;
 import pcy.study.server.service.info.PostInfo;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 public record PostResponse(
         Long id,
@@ -11,14 +12,10 @@ public record PostResponse(
         boolean isAdmin,
         int views,
         Long userId,
-        String userNickname,
         Long categoryId,
-        String categoryName,
+        LocalDateTime createdAt,
         Long fileId,
-        String filePath,
-        String fileName,
-        String fileExtension,
-        LocalDateTime createdAt
+        List<Long> postTagIds
 ) {
 
     public static PostResponse from(PostInfo info) {
@@ -29,14 +26,10 @@ public record PostResponse(
                 info.isAdmin(),
                 info.views(),
                 info.userId(),
-                info.userNickname(),
                 info.categoryId(),
-                info.categoryName(),
+                info.createdAt(),
                 info.fileId(),
-                info.filePath(),
-                info.fileName(),
-                info.fileExtension(),
-                info.createdAt()
+                info.postTagIds()
         );
     }
 }

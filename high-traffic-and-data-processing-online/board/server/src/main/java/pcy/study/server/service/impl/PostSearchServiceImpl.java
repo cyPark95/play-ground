@@ -30,4 +30,14 @@ public class PostSearchServiceImpl implements PostSearchService {
             throw new RuntimeException(e);
         }
     }
+
+    @Override
+    public List<PostSearchInfo> getPostsByTagName(String tagName) {
+        try {
+            return postSearchMapper.selectPostsByTagName(tagName);
+        } catch (RuntimeException e) {
+            log.error("getPostsByTagName 메서드 실패", e);
+            throw new RuntimeException(e);
+        }
+    }
 }

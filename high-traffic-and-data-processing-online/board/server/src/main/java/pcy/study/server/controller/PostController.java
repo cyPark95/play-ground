@@ -4,12 +4,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import pcy.study.server.aop.LoginCheck;
-import pcy.study.server.controller.request.PostModifyRequest;
-import pcy.study.server.controller.request.PostRegisterRequest;
+import pcy.study.server.controller.request.*;
 import pcy.study.server.controller.response.PostResponse;
 import pcy.study.server.service.PostService;
-import pcy.study.server.service.command.PostSaveCommand;
-import pcy.study.server.service.command.PostUpdateCommand;
+import pcy.study.server.service.command.*;
 import pcy.study.server.service.info.PostInfo;
 
 import java.util.List;
@@ -46,12 +44,66 @@ public class PostController {
             @RequestBody PostModifyRequest modifyRequest
     ) {
         PostUpdateCommand updateCommand = modifyRequest.toCommand(postId, userId);
-        postService.updatePost(updateCommand);
+        postService.update(updateCommand);
     }
 
     @DeleteMapping("/{postId}")
     @LoginCheck
     public void remove(Long userId, @PathVariable Long postId) {
         postService.delete(userId, postId);
+    }
+
+    @PostMapping("/{postId}/comments")
+    @ResponseStatus(HttpStatus.CREATED)
+    @LoginCheck
+    public void commentRegister(
+            Long userId,
+            @PathVariable Long postId,
+            @RequestBody CommentRegisterRequest registerRequest
+    ) {
+        CommentSaveCommand saveCommand = registerRequest.toCommand(userId, postId);
+        postService.saveComment(saveCommand);
+    }
+
+    @PatchMapping("/comments/{commentId}")
+    @LoginCheck
+    public void commentModify(
+            Long userId,
+            @PathVariable Long commentId,
+            @RequestBody CommentModifyRequest modifyRequest
+    ) {
+        CommentUpdateCommand command = modifyRequest.toCommand(userId, commentId);
+        postService.updateComment(command);
+    }
+
+    @DeleteMapping("/comments/{commentId}")
+    @LoginCheck
+    public void commentRemove(Long userId, @PathVariable Long commentId) {
+        postService.deleteComment(userId, commentId);
+    }
+
+    @PostMapping("/tags")
+    @ResponseStatus(HttpStatus.CREATED)
+    @LoginCheck
+    public void tagRegister(Long userId, @RequestBody TagRegisterRequest registerRequest) {
+        TagSaveCommand saveCommand = registerRequest.toCommand(userId);
+        postService.saveTag(saveCommand);
+    }
+
+    @PatchMapping("/tags/{tagId}")
+    @LoginCheck
+    public void tagModify(
+            Long userId,
+            @PathVariable Long tagId,
+            @RequestBody TagModifyRequest modifyRequest
+    ) {
+        TagUpdateCommand command = modifyRequest.toCommand(userId, tagId);
+        postService.updateTag(command);
+    }
+
+    @DeleteMapping("/tags/{tagId}")
+    @LoginCheck
+    public void tagRemove(Long userId, @PathVariable Long tagId) {
+        postService.deleteTag(userId, tagId);
     }
 }

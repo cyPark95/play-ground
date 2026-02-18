@@ -44,6 +44,11 @@
             <result property="extension" column="extension"/>
         </association>
 
+        <collection property="postTags" javaType="pcy.study.server.domain.PostTag">
+            <id property="id" column="postTagId"/>
+            <result property="tagId" column="tagId"/>
+        </collection>
+
     </resultMap>
 
     <select id="findById" resultMap="postResultMap">
@@ -61,8 +66,11 @@
              , f.path
              , f.name AS fileName
              , f.extension
+             , t.id   AS postTagId
+             , t.tagId
         FROM post p
                  LEFT JOIN file f ON f.postId = p.id
+                 LEFT JOIN postTag t ON t.postId = p.id
         WHERE p.id = #{id}
     ]]>
     </select>
@@ -82,8 +90,11 @@
              , f.path
              , f.name AS fileName
              , f.extension
+             , t.id   AS postTagId
+             , t.tagId
         FROM post p
                  LEFT JOIN file f ON f.postId = p.id
+                 LEFT JOIN postTag t ON t.postId = p.id
         WHERE userId = #{userId}
     ]]>
     </select>

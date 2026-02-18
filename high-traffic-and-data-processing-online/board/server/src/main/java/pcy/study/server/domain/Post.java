@@ -1,12 +1,10 @@
 package pcy.study.server.domain;
 
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import pcy.study.server.service.command.PostUpdateCommand;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -23,8 +21,6 @@ public class Post {
 
     private int views;
 
-    private File file;
-
     private Long userId;
 
     private Long categoryId;
@@ -33,15 +29,22 @@ public class Post {
 
     private LocalDateTime updatedAt;
 
+    private File file;
+
     private boolean isChangeFile;
 
-    public Post(String name, String contents, boolean isAdmin, Long userId, Long categoryId, File file) {
+    private List<PostTag> postTags;
+
+    private boolean isChangePostTag;
+
+    public Post(String name, String contents, boolean isAdmin, Long userId, Long categoryId, File file, List<PostTag> postTags) {
         this.name = name;
         this.contents = contents;
         this.isAdmin = isAdmin;
         this.userId = userId;
         this.categoryId = categoryId;
         this.file = file;
+        this.postTags = postTags;
 
         this.views = 0;
         this.createdAt = LocalDateTime.now();
@@ -58,6 +61,13 @@ public class Post {
             this.file = updateCommand.fileSaveCommand().toDomain();
             this.isChangeFile = true;
         }
+
+        if (updateCommand.tagIds() != null && !updateCommand.tagIds().isEmpty()) {
+            this.postTags = updateCommand.tagIds().stream()
+                    .map(PostTag::new)
+                    .toList();
+            this.isChangePostTag = true;
+        }
     }
 
     public boolean canBeDeletedBy(Long userId) {
@@ -66,5 +76,9 @@ public class Post {
 
     public boolean hasFile() {
         return this.file != null;
+    }
+
+    public boolean hasPostTags() {
+        return this.postTags != null && !this.postTags.isEmpty();
     }
 }

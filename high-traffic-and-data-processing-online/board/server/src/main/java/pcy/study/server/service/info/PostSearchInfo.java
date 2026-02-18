@@ -1,54 +1,37 @@
 package pcy.study.server.service.info;
 
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
+@Setter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class PostSearchInfo {
 
-    private final Long id;
+    private Long id;
 
-    private final String name;
+    private String name;
 
-    private final String contents;
+    private String contents;
 
-    private final boolean isAdmin;
+    private boolean isAdmin;
 
-    private final int views;
+    private int views;
 
-    private final Long userId;
+    private LocalDateTime createdAt;
 
-    private final String userNickname;
+    private LocalDateTime updatedAt;
 
-    private final Long categoryId;
+    private PostSearchUserInfo userInfo;
 
-    private final String categoryName;
+    private PostSearchCategoryInfo categoryInfo;
 
-    private final Long fileId;
+    private PostSearchFileInfo fileInfoInfo;
 
-    private final String filePath;
-
-    private final String fileName;
-
-    private final String fileExtension;
-
-    private final LocalDateTime createdAt;
-
-    public PostSearchInfo(Long id, String name, String contents, boolean isAdmin, int views, Long userId, String userNickname, Long categoryId, String categoryName, Long fileId, String filePath, String fileName, String fileExtension, LocalDateTime createdAt) {
-        this.id = id;
-        this.name = name;
-        this.contents = contents;
-        this.isAdmin = isAdmin;
-        this.views = views;
-        this.userId = userId;
-        this.userNickname = userNickname;
-        this.categoryId = categoryId;
-        this.categoryName = categoryName;
-        this.fileId = fileId;
-        this.filePath = filePath;
-        this.fileName = fileName;
-        this.fileExtension = fileExtension;
-        this.createdAt = createdAt;
-    }
+    private List<PostSearchPostTagInfo> postTagInfos;
 }

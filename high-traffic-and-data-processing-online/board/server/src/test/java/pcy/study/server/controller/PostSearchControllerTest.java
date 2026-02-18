@@ -11,17 +11,14 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 import pcy.study.server.controller.request.SearchPostRequest;
-import pcy.study.server.domain.Category;
-import pcy.study.server.domain.File;
-import pcy.study.server.domain.Post;
-import pcy.study.server.domain.User;
-import pcy.study.server.mapper.CategoryMapper;
-import pcy.study.server.mapper.FileMapper;
-import pcy.study.server.mapper.PostMapper;
-import pcy.study.server.mapper.UserMapper;
+import pcy.study.server.domain.*;
+import pcy.study.server.mapper.*;
 import pcy.study.server.service.command.CategorySortStatus;
 import pcy.study.server.utils.SHA256Util;
 
+import java.util.List;
+
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -48,12 +45,21 @@ class PostSearchControllerTest {
     private PostMapper postMapper;
 
     @Autowired
+    private CommentMapper commentMapper;
+
+    @Autowired
     private FileMapper fileMapper;
 
-    private File file;
-    private Post post;
+    @Autowired
+    private TagMapper tagMapper;
+
     private User user;
     private Category category;
+    private Post post;
+    private Comment comment;
+    private File file;
+    private Tag tag;
+    private PostTag postTag;
 
     @BeforeEach
     void setUp() {
@@ -65,23 +71,31 @@ class PostSearchControllerTest {
         category = new Category("Category");
         categoryMapper.insertCategory(category);
 
-        file = new File("/path", "old1.txt", "txt");
-        post = new Post("Title", "Contents", false, user.getId(), category.getId(), file);
+        tag = new Tag("new", "/tags/new");
+        tagMapper.insertTag(tag);
+
+        file = new File("/path", "file.txt", "txt");
+        postTag = new PostTag(tag.getId());
+        List<PostTag> postTags = List.of(postTag);
+        post = new Post("new Title", "new Contents", false, user.getId(), category.getId(), file, postTags);
         postMapper.insertPost(post);
         fileMapper.insertFile(post);
+        tagMapper.insertPostTags(post);
 
-        var firstPost = new Post("Title1", "Contents1", false, user.getId(), category.getId(), null);
-        postMapper.insertPost(firstPost);
+        comment = new Comment(post.getId(), "contents", null);
+        commentMapper.insertComment(comment);
 
-        var secondPost = new Post("Title2", "Contents2", false, user.getId(), category.getId(), null);
-        postMapper.insertPost(secondPost);
+        var post1 = new Post("Title1", "Contents1", false, user.getId(), category.getId(), null, null);
+        postMapper.insertPost(post1);
+        var post2 = new Post("Title2", "Contents2", false, user.getId(), category.getId(), null, null);
+        postMapper.insertPost(post2);
     }
 
     @Test
     @DisplayName("게시글 검색 성공")
     void searchPostsSuccess() throws Exception {
         // given
-        var searchRequest = new SearchPostRequest("Title", null, null, null, null);
+        var searchRequest = new SearchPostRequest("new", null, null, null, null);
 
         // when & then
         mockMvc.perform(post("/search")
@@ -89,20 +103,24 @@ class PostSearchControllerTest {
                         .content(objectMapper.writeValueAsString(searchRequest)))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[2].name").value(post.getName()))
-                .andExpect(jsonPath("$[2].contents").value(post.getContents()))
-                .andExpect(jsonPath("$[2].isAdmin").value(post.isAdmin()))
-                .andExpect(jsonPath("$[2].views").value(post.getViews()))
-                .andExpect(jsonPath("$[2].userId").value(user.getId()))
-                .andExpect(jsonPath("$[2].userNickname").value(user.getNickname()))
-                .andExpect(jsonPath("$[2].categoryId").value(category.getId()))
-                .andExpect(jsonPath("$[2].categoryName").value(category.getName()))
-                .andExpect(jsonPath("$[2].fileId").value(file.getId()))
-                .andExpect(jsonPath("$[2].filePath").value(file.getPath()))
-                .andExpect(jsonPath("$[2].fileName").value(file.getName()))
-                .andExpect(jsonPath("$[2].fileExtension").value(file.getExtension()))
-                .andExpect(jsonPath("$[2].createdAt").isNotEmpty())
-        ;
+                .andExpect(jsonPath("$[0].id").value(post.getId()))
+                .andExpect(jsonPath("$[0].name").value(post.getName()))
+                .andExpect(jsonPath("$[0].contents").value(post.getContents()))
+                .andExpect(jsonPath("$[0].views").value(post.getViews()))
+                .andExpect(jsonPath("$[0].user.id").value(user.getId()))
+                .andExpect(jsonPath("$[0].user.userId").value(user.getUserId()))
+                .andExpect(jsonPath("$[0].user.nickname").value(user.getNickname()))
+                .andExpect(jsonPath("$[0].user.isWithDraw").value(user.isWithDraw()))
+                .andExpect(jsonPath("$[0].user.isAdmin").value(user.isAdmin()))
+                .andExpect(jsonPath("$[0].category.id").value(category.getId()))
+                .andExpect(jsonPath("$[0].category.name").value(category.getName()))
+                .andExpect(jsonPath("$[0].file.id").value(file.getId()))
+                .andExpect(jsonPath("$[0].file.path").value(file.getPath()))
+                .andExpect(jsonPath("$[0].file.name").value(file.getName()))
+                .andExpect(jsonPath("$[0].file.extension").value(file.getExtension()))
+                .andExpect(jsonPath("$[0].postTags[0].tagId").value(tag.getId()))
+                .andExpect(jsonPath("$[0].postTags[0].name").value(tag.getName()))
+                .andExpect(jsonPath("$[0].postTags[0].url").value(tag.getUrl()));
     }
 
     @Test
@@ -134,14 +152,14 @@ class PostSearchControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].name").value("Title2"))
                 .andExpect(jsonPath("$[1].name").value("Title1"))
-                .andExpect(jsonPath("$[2].name").value("Title"));
+                .andExpect(jsonPath("$[2].name").value("new Title"));
     }
 
     @Test
-    @DisplayName("게시글 검색 성공 -오래된 순 정렬")
+    @DisplayName("게시글 검색 성공 - 오래된 순 정렬")
     void searchPostsSuccessWithOldestSort() throws Exception {
         // given
-        var searchRequest = new SearchPostRequest("Title", null, null, null, CategorySortStatus.OLDEST.name());
+        var searchRequest = new SearchPostRequest(null, null, null, null, CategorySortStatus.OLDEST.name());
 
         // when & then
         mockMvc.perform(post("/search")
@@ -149,8 +167,36 @@ class PostSearchControllerTest {
                         .content(objectMapper.writeValueAsString(searchRequest)))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].name").value("Title"))
+                .andExpect(jsonPath("$[0].name").value("new Title"))
                 .andExpect(jsonPath("$[1].name").value("Title1"))
                 .andExpect(jsonPath("$[2].name").value("Title2"));
+    }
+
+    @Test
+    @DisplayName("태그 이름으로 게시글 검색 성공")
+    void searchPostsByTagNameSuccess() throws Exception {
+        // when & then
+        mockMvc.perform(get("/search/tag")
+                        .param("tagName", "new"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(post.getId()))
+                .andExpect(jsonPath("$[0].name").value(post.getName()))
+                .andExpect(jsonPath("$[0].contents").value(post.getContents()))
+                .andExpect(jsonPath("$[0].views").value(post.getViews()))
+                .andExpect(jsonPath("$[0].user.id").value(user.getId()))
+                .andExpect(jsonPath("$[0].user.userId").value(user.getUserId()))
+                .andExpect(jsonPath("$[0].user.nickname").value(user.getNickname()))
+                .andExpect(jsonPath("$[0].user.isWithDraw").value(user.isWithDraw()))
+                .andExpect(jsonPath("$[0].user.isAdmin").value(user.isAdmin()))
+                .andExpect(jsonPath("$[0].category.id").value(category.getId()))
+                .andExpect(jsonPath("$[0].category.name").value(category.getName()))
+                .andExpect(jsonPath("$[0].file.id").value(file.getId()))
+                .andExpect(jsonPath("$[0].file.path").value(file.getPath()))
+                .andExpect(jsonPath("$[0].file.name").value(file.getName()))
+                .andExpect(jsonPath("$[0].file.extension").value(file.getExtension()))
+                .andExpect(jsonPath("$[0].postTags[0].tagId").value(tag.getId()))
+                .andExpect(jsonPath("$[0].postTags[0].name").value(tag.getName()))
+                .andExpect(jsonPath("$[0].postTags[0].url").value(tag.getUrl()));
     }
 }

@@ -1,10 +1,7 @@
 package pcy.study.server.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import pcy.study.server.controller.request.SearchPostRequest;
 import pcy.study.server.controller.response.PostSearchResponse;
 import pcy.study.server.service.PostSearchService;
@@ -24,6 +21,14 @@ public class PostSearchController {
     public List<PostSearchResponse> searchPosts(@RequestBody SearchPostRequest searchPostRequest) {
         PostSearchQuery searchQuery = searchPostRequest.toQuery();
         List<PostSearchInfo> posts = postSearchService.searchPosts(searchQuery);
+        return posts.stream()
+                .map(PostSearchResponse::from)
+                .toList();
+    }
+
+    @GetMapping("/tag")
+    public List<PostSearchResponse> searchPostsByTagName(String tagName) {
+        List<PostSearchInfo> posts = postSearchService.getPostsByTagName(tagName);
         return posts.stream()
                 .map(PostSearchResponse::from)
                 .toList();

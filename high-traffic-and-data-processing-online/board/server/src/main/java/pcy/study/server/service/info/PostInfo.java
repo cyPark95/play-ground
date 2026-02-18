@@ -1,11 +1,10 @@
 package pcy.study.server.service.info;
 
-import pcy.study.server.domain.Category;
-import pcy.study.server.domain.File;
 import pcy.study.server.domain.Post;
-import pcy.study.server.domain.User;
+import pcy.study.server.domain.PostTag;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 public record PostInfo(
         Long id,
@@ -14,32 +13,26 @@ public record PostInfo(
         boolean isAdmin,
         int views,
         Long userId,
-        String userNickname,
         Long categoryId,
-        String categoryName,
+        LocalDateTime createdAt,
         Long fileId,
-        String filePath,
-        String fileName,
-        String fileExtension,
-        LocalDateTime createdAt
+        List<Long> postTagIds
 ) {
 
-    public static PostInfo from(Post post, User user, Category category, File file) {
+    public static PostInfo from(Post post) {
         return new PostInfo(
                 post.getId(),
                 post.getName(),
                 post.getContents(),
                 post.isAdmin(),
                 post.getViews(),
-                user.getId(),
-                user.getNickname(),
-                category.getId(),
-                category.getName(),
-                file.getId(),
-                file.getPath(),
-                file.getName(),
-                file.getExtension(),
-                post.getCreatedAt()
+                post.getUserId(),
+                post.getCategoryId(),
+                post.getCreatedAt(),
+                post.getFile().getId(),
+                post.getPostTags().stream()
+                        .map(PostTag::getId)
+                        .toList()
         );
     }
 }

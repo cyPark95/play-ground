@@ -3,6 +3,7 @@ package pcy.study.server.controller.response;
 import pcy.study.server.service.info.PostSearchInfo;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 public record PostSearchResponse(
         Long id,
@@ -10,15 +11,11 @@ public record PostSearchResponse(
         String contents,
         boolean isAdmin,
         int views,
-        Long userId,
-        String userNickname,
-        Long categoryId,
-        String categoryName,
-        Long fileId,
-        String filePath,
-        String fileName,
-        String fileExtension,
-        LocalDateTime createdAt
+        LocalDateTime createdAt,
+        PostSearchUserResponse user,
+        PostSearchCategoryResponse category,
+        PostSearchFileResponse file,
+        List<PostSearchPostTagResponse> postTags
 ) {
 
     public static PostSearchResponse from(PostSearchInfo info) {
@@ -28,15 +25,13 @@ public record PostSearchResponse(
                 info.getContents(),
                 info.isAdmin(),
                 info.getViews(),
-                info.getUserId(),
-                info.getUserNickname(),
-                info.getCategoryId(),
-                info.getCategoryName(),
-                info.getFileId(),
-                info.getFilePath(),
-                info.getFileName(),
-                info.getFileExtension(),
-                info.getCreatedAt()
+                info.getCreatedAt(),
+                info.getUserInfo() != null ? PostSearchUserResponse.from(info.getUserInfo()) : null,
+                info.getCategoryInfo() != null ? PostSearchCategoryResponse.from(info.getCategoryInfo()) : null,
+                info.getFileInfoInfo() != null ? PostSearchFileResponse.from(info.getFileInfoInfo()) : null,
+                info.getPostTagInfos() != null ? info.getPostTagInfos().stream()
+                        .map(PostSearchPostTagResponse::from)
+                        .toList() : null
         );
     }
 }

@@ -3,26 +3,75 @@
 
 <mapper namespace="pcy.study.server.mapper.PostSearchMapper">
 
-    <select id="selectPosts" resultType="pcy.study.server.service.info.PostSearchInfo">
+    <resultMap id="postSearchResultMap" type="pcy.study.server.service.info.PostSearchInfo">
+
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="contents" column="contents"/>
+        <result property="admin" column="isAdmin"/>
+        <result property="views" column="views"/>
+        <result property="createdAt" column="createdAt"/>
+        <result property="updatedAt" column="updatedAt"/>
+
+        <association property="userInfo" javaType="pcy.study.server.service.info.PostSearchUserInfo">
+            <id property="id" column="u_id"/>
+            <result property="userId" column="userId"/>
+            <result property="nickname" column="userNickname"/>
+            <result property="isWithDraw" column="userIsWithDraw"/>
+            <result property="isAdmin" column="userIsWithDraw"/>
+        </association>
+
+        <association property="categoryInfo" javaType="pcy.study.server.service.info.PostSearchCategoryInfo">
+            <id property="id" column="categoryId"/>
+            <result property="name" column="categoryName"/>
+        </association>
+
+        <association property="fileInfoInfo" javaType="pcy.study.server.service.info.PostSearchFileInfo">
+            <id property="id" column="fileId"/>
+            <result property="path" column="filePath"/>
+            <result property="name" column="fileName"/>
+            <result property="extension" column="fileExtension"/>
+        </association>
+
+        <collection property="postTagInfos" ofType="pcy.study.server.service.info.PostSearchPostTagInfo">
+            <id property="id" column="postTagId"/>
+            <result property="tagId" column="tagId"/>
+            <result property="name" column="tagName"/>
+            <result property="url" column="tagUrl"/>
+        </collection>
+
+    </resultMap>
+
+    <select id="selectPosts" resultMap="postSearchResultMap">
     <![CDATA[
         SELECT p.id
              , p.name
              , p.contents
              , p.isAdmin
              , p.views
-             , u.id        AS userId
-             , u.nickname  AS userNickname
-             , c.id        AS categoryId
-             , c.name      AS categoryName
-             , f.id        AS fileId
-             , f.path      AS filePath
-             , f.name      AS fileName
-             , f.extension AS fileExtension
              , p.createdAt
+             , p.updatedAt
+             , u.id          AS u_Id
+             , u.userId      AS userId
+             , u.nickname    AS userNickname
+             , u.isWithDraw  AS userIsWithDraw
+             , u.isAdmin     AS userIsWithDraw
+             , c.id          AS categoryId
+             , c.name        AS categoryName
+             , f.id          AS fileId
+             , f.path        AS filePath
+             , f.name        AS fileName
+             , f.extension   AS fileExtension
+             , pt.id         AS postTagId
+             , t.id          AS tagId
+             , t.name        AS tagName
+             , t.url         AS tagUrl
         FROM post p
                  JOIN user u ON u.id = p.userId
                  JOIN category c ON c.id = p.categoryId
                  LEFT JOIN file f ON f.postId = p.id
+                 LEFT JOIN postTag pt ON pt.postId = p.id
+                 LEFT JOIN tag t ON t.id = pt.tagId
         WHERE 1 = 1
     ]]>
         <if test="name != null and name != ''">
@@ -60,6 +109,40 @@
             ORDER BY p.categoryId
         ]]>
         </if>
+    </select>
+
+    <select id="selectPostsByTagName" resultMap="postSearchResultMap">
+    <![CDATA[
+        SELECT p.id
+             , p.name
+             , p.contents
+             , p.isAdmin
+             , p.views
+             , p.createdAt
+             , p.updatedAt
+             , u.id          AS u_Id
+             , u.userId      AS userId
+             , u.nickname    AS userNickname
+             , u.isWithDraw  AS userIsWithDraw
+             , u.isAdmin     AS userIsWithDraw
+             , c.id          AS categoryId
+             , c.name        AS categoryName
+             , f.id          AS fileId
+             , f.path        AS filePath
+             , f.name        AS fileName
+             , f.extension   AS fileExtension
+             , pt.id         AS postTagId
+             , t.id          AS tagId
+             , t.name        AS tagName
+             , t.url         AS tagUrl
+        FROM post p
+                 JOIN user u ON u.id = p.userId
+                 JOIN category c ON c.id = p.categoryId
+                 LEFT JOIN file f ON f.postId = p.id
+                 LEFT JOIN postTag pt ON pt.postId = p.id
+                 JOIN tag t ON t.id = pt.tagId
+        WHERE t.name = #{tagName}
+    ]]>
     </select>
 
 </mapper>
