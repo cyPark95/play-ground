@@ -32,7 +32,9 @@ CREATE TABLE post
     updatedAt  DATETIME DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT fk_post_category FOREIGN KEY (categoryId) REFERENCES category (id),
-    CONSTRAINT fk_post_user FOREIGN KEY (userId) REFERENCES user (id)
+    CONSTRAINT fk_post_user FOREIGN KEY (userId) REFERENCES user (id),
+
+    INDEX idx_post_name (name)
 );
 
 -- file
