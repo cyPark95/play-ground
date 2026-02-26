@@ -29,6 +29,7 @@ public class LoginCheckAspect {
         if (id == null) {
             throw new HttpClientErrorException(HttpStatus.UNAUTHORIZED, "로그인한 ID 값을 확인해주세요.");
         }
+        log.info("로그인 ID: {}", id);
 
         Object[] args = joinPoint.getArgs();
         args[0] = id;
