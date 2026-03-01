@@ -20,3 +20,19 @@ spring:
         defaultTime: 5
       repositories:
         enabled: false
+
+aws:
+  sns:
+    accessKey: ${AWS_ACCESS_KEY}
+    secretKey: ${AWS_SECRET_KEY}
+    region: ap-northeast-2
+
+cloud:
+  aws:
+    region:
+      static: ap-northeast-2
+    stack:
+      auto: false
+
+slack:
+  token: ${SLACK_TOKEN}

@@ -40,4 +40,10 @@ public class GlobalExceptionHandler {
         ErrorResponse response = new ErrorResponse(ex.getMessage());
         return new ResponseEntity<>(response, ex.getStatusCode());
     }
+
+    @ExceptionHandler(SnsException.class)
+    public ResponseEntity<ErrorResponse> handleSnsException(SnsException ex) {
+        ErrorResponse response = new ErrorResponse(ex.getMessage());
+        return new ResponseEntity<>(response, ex.getStatus());
+    }
 }
