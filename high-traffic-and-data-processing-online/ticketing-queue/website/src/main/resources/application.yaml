@@ -4,3 +4,11 @@ spring:
 
 server:
   port: 9000
+
+queue:
+  server:
+    url: http://localhost:9010
+
+target:
+  server:
+    url: http://localhost:9000
