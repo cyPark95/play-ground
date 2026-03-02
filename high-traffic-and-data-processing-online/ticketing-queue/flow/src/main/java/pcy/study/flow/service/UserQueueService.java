@@ -47,4 +47,13 @@ public class UserQueueService {
         return reactiveRedisTemplate.opsForZSet().score(proceedKey, userId.toString())
                 .hasElement();
     }
+
+    public Mono<Long> getRank(final String queue, final Long userId) {
+        var key = USER_QUEUE_WAIT_KEY.formatted(queue);
+        var user = userId.toString();
+
+        return reactiveRedisTemplate.opsForZSet().rank(key, user)
+                .map(rank -> rank + 1)
+                .defaultIfEmpty(-1L);
+    }
 }

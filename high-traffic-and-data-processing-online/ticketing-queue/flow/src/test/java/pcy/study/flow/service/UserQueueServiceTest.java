@@ -143,4 +143,26 @@ class UserQueueServiceTest {
                 .expectNext(true)
                 .verifyComplete();
     }
+
+    @Test
+    @DisplayName("대기열에 있는 유저의 순위를 조회하면 1부터 시작하는 올바른 대기 순위를 반환한다")
+    void getRank_UserInWaitQueue_ReturnsRank() {
+        StepVerifier.create(userQueueService.registerWaitQueue(QUEUE, USER_ID_1)
+                        .then(userQueueService.getRank(QUEUE, USER_ID_1)))
+                .expectNext(1L)
+                .verifyComplete();
+
+        StepVerifier.create(userQueueService.registerWaitQueue(QUEUE, USER_ID_2)
+                        .then(userQueueService.getRank(QUEUE, USER_ID_2)))
+                .expectNext(2L)
+                .verifyComplete();
+    }
+
+    @Test
+    @DisplayName("대기열에 존재하지 않는 유저의 순위를 조회하면 -1을 반환한다")
+    void getRank_UserNotInWaitQueue_ReturnsMinusOne() {
+        StepVerifier.create(userQueueService.getRank(QUEUE, USER_ID_1))
+                .expectNext(-1L)
+                .verifyComplete();
+    }
 }

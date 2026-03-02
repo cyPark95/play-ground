@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import pcy.study.flow.dto.AllowUserResponse;
 import pcy.study.flow.dto.AllowedUserResponse;
+import pcy.study.flow.dto.RankNumberResponse;
 import pcy.study.flow.dto.RegisterUserResponse;
 import pcy.study.flow.service.UserQueueService;
 import reactor.core.publisher.Mono;
@@ -40,5 +41,14 @@ public class UserQueueController {
     ) {
         return userQueueService.isAllowed(queue, userId)
                 .map(AllowedUserResponse::new);
+    }
+
+    @GetMapping("/rank")
+    public Mono<RankNumberResponse> getRankUser(
+            @RequestParam(name = "queue", defaultValue = "default") String queue,
+            @RequestParam(name = "user_id") Long userId
+    ) {
+        return userQueueService.getRank(queue, userId)
+                .map(RankNumberResponse::new);
     }
 }
