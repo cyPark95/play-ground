@@ -13,6 +13,7 @@ import java.time.Instant;
 public class UserQueueService {
 
     private static final String USER_QUEUE_WAIT_KEY = "users:queue:%s:wait";
+    private static final String USER_QUEUE_PROCEED_KEY = "users:queue:%s:proceed";
 
     private final ReactiveRedisTemplate<String, String> reactiveRedisTemplate;
 
@@ -28,5 +29,22 @@ public class UserQueueService {
                                 .flatMap(added -> reactiveRedisTemplate.opsForZSet().rank(key, user))
                 )
                 .map(rank -> rank + 1);
+    }
+
+    public Mono<Long> allowUser(final String queue, final Long count) {
+        var waitKey = USER_QUEUE_WAIT_KEY.formatted(queue);
+        var proceedKey = USER_QUEUE_PROCEED_KEY.formatted(queue);
+        long timestamp = Instant.now().toEpochMilli();
+
+        return reactiveRedisTemplate.opsForZSet().popMin(waitKey, count)
+                .flatMap(user -> reactiveRedisTemplate.opsForZSet().add(proceedKey, user.getValue(), timestamp))
+                .count();
+    }
+
+    public Mono<Boolean> isAllowed(final String queue, final Long userId) {
+        var proceedKey = USER_QUEUE_PROCEED_KEY.formatted(queue);
+
+        return reactiveRedisTemplate.opsForZSet().score(proceedKey, userId.toString())
+                .hasElement();
     }
 }

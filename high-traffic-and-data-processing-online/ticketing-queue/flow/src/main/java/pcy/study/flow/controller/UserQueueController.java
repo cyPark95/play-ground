@@ -1,10 +1,9 @@
 package pcy.study.flow.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import pcy.study.flow.dto.AllowUserResponse;
+import pcy.study.flow.dto.AllowedUserResponse;
 import pcy.study.flow.dto.RegisterUserResponse;
 import pcy.study.flow.service.UserQueueService;
 import reactor.core.publisher.Mono;
@@ -23,5 +22,23 @@ public class UserQueueController {
     ) {
         return userQueueService.registerWaitQueue(queue, userId)
                 .map(RegisterUserResponse::new);
+    }
+
+    @PostMapping("/allow")
+    public Mono<AllowUserResponse> allowUser(
+            @RequestParam(name = "queue", defaultValue = "default") String queue,
+            @RequestParam(name = "count") Long count
+    ) {
+        return userQueueService.allowUser(queue, count)
+                .map(allowed -> new AllowUserResponse(count, allowed));
+    }
+
+    @GetMapping("/allowed")
+    public Mono<AllowedUserResponse> isAllowedUser(
+            @RequestParam(name = "queue", defaultValue = "default") String queue,
+            @RequestParam(name = "user_id") Long userId
+    ) {
+        return userQueueService.isAllowed(queue, userId)
+                .map(AllowedUserResponse::new);
     }
 }
