@@ -165,4 +165,31 @@ class UserQueueServiceTest {
                 .expectNext(-1L)
                 .verifyComplete();
     }
+
+    @Test
+    @DisplayName("유저 정보로 토큰을 생성하면 Null이 아닌 유효한 해시 문자열을 반환한다")
+    void generateToken_ValidInput_ReturnsHashedString() {
+        StepVerifier.create(userQueueService.generateToken(QUEUE, USER_ID_1))
+                .expectNextMatches(token -> token != null && !token.isBlank())
+                .verifyComplete();
+    }
+
+    @Test
+    @DisplayName("서버에서 정상적으로 발급된 토큰을 전달하면 진입 허용(true)을 반환한다")
+    void isAllowedByToken_ValidToken_ReturnsTrue() {
+        StepVerifier.create(userQueueService.generateToken(QUEUE, USER_ID_1)
+                        .flatMap(token -> userQueueService.isAllowed(QUEUE, USER_ID_1, token)))
+                .expectNext(true)
+                .verifyComplete();
+    }
+
+    @Test
+    @DisplayName("조작되거나 유효하지 않은 토큰을 전달하면 진입 거부(false)를 반환한다")
+    void isAllowedByToken_InvalidToken_ReturnsFalse() {
+        String invalidToken = "invalid-fake-token-12345";
+
+        StepVerifier.create(userQueueService.isAllowed(QUEUE, USER_ID_1, invalidToken))
+                .expectNext(false)
+                .verifyComplete();
+    }
 }
