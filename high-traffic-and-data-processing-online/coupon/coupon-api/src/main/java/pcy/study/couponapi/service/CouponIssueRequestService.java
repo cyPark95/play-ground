@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import pcy.study.couponapi.controller.dto.CouponIssueRequest;
+import pcy.study.couponcore.component.DistributeLockExecutor;
 import pcy.study.couponcore.service.CouponIssueService;
 
 @Service
@@ -12,11 +13,15 @@ import pcy.study.couponcore.service.CouponIssueService;
 public class CouponIssueRequestService {
 
     private final CouponIssueService couponIssueService;
+    private final DistributeLockExecutor distributeLockExecutor;
 
     public void issueRequest(CouponIssueRequest request) {
-        synchronized (this) {
-            couponIssueService.issue(request.couponId(), request.userId());
-        }
+        distributeLockExecutor.execute(
+                String.format("Lock_%d", request.couponId()),
+                5000,
+                1000,
+                () -> couponIssueService.issue(request.couponId(), request.userId())
+        );
         log.info("쿠폰 발급 완료. coupon: {}, userId: {}", request.couponId(), request.userId());
     }
 }
