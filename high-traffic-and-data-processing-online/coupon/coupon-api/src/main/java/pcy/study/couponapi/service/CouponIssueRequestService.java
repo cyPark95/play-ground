@@ -13,15 +13,9 @@ import pcy.study.couponcore.service.CouponIssueService;
 public class CouponIssueRequestService {
 
     private final CouponIssueService couponIssueService;
-    private final DistributeLockExecutor distributeLockExecutor;
 
     public void issueRequest(CouponIssueRequest request) {
-        distributeLockExecutor.execute(
-                String.format("Lock_%d", request.couponId()),
-                5000,
-                1000,
-                () -> couponIssueService.issue(request.couponId(), request.userId())
-        );
+        couponIssueService.issue(request.couponId(), request.userId());
         log.info("쿠폰 발급 완료. coupon: {}, userId: {}", request.couponId(), request.userId());
     }
 }
