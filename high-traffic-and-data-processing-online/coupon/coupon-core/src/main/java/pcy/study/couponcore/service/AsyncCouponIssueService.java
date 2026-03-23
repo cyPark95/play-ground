@@ -7,9 +7,9 @@ import org.springframework.stereotype.Service;
 import pcy.study.couponcore.component.DistributeLockExecutor;
 import pcy.study.couponcore.exception.CouponIssueException;
 import pcy.study.couponcore.exception.ErrorCode;
-import pcy.study.couponcore.model.Coupon;
 import pcy.study.couponcore.repository.redis.RedisRepository;
 import pcy.study.couponcore.repository.redis.dto.CouponIssueRequest;
+import pcy.study.couponcore.repository.redis.dto.CouponRedisEntity;
 
 import static pcy.study.couponcore.util.CouponRedisUtils.getIssueRequestKey;
 import static pcy.study.couponcore.util.CouponRedisUtils.getIssueRequestQueueKey;
@@ -20,40 +20,25 @@ public class AsyncCouponIssueService {
 
     private final RedisRepository redisRepository;
     private final CouponIssueRedisService couponIssueRedisService;
-    private final CouponIssueService couponIssueService;
+    private final CouponCacheService couponCacheService;
     private final DistributeLockExecutor distributeLockExecutor;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     public void issue(long couponId, long userId) {
-        Coupon coupon = couponIssueService.findCoupon(couponId);
+        CouponRedisEntity coupon = couponCacheService.getCouponCache(couponId);
+        coupon.checkIssuableCoupon();
 
-        if (!coupon.availableIssueDate()) {
-            throw new CouponIssueException(
-                    ErrorCode.INVALID_COUPON_ISSUE_DATE,
-                    String.format("발급 가능 일자가 아닙니다. couponId: %d, issueStart: %s, issueEnd: %s", couponId, coupon.getDateIssueStart(), coupon.getDateIssueEnd())
-            );
-        }
-
+        /*
+         * 문제점
+         * 처리량(Throughput) 감소 - 분산 락 획득/해제 과정 자체가 병목
+         */
         distributeLockExecutor.execute(
                 "lock_%s".formatted(couponId),
                 3000,
                 5000,
                 () -> {
-                    if (!couponIssueRedisService.availableTotalIssueQuantity(coupon.getTotalQuantity(), couponId)) {
-                        throw new CouponIssueException(
-                                ErrorCode.INVALID_COUPON_ISSUE_QUANTITY,
-                                String.format("발급 가능한 수량을 초과합니다. couponId: %d, userId: %d", couponId, userId)
-                        );
-                    }
-
-                    if (!couponIssueRedisService.availableUserIssueQuantity(coupon.getId(), userId)) {
-                        throw new CouponIssueException(
-                                ErrorCode.DUPLICATE_COUPON_ISSUE,
-                                String.format("이미 발급 요청이 처리 됐습니다. couponId: %d, userId: %d", couponId, userId)
-                        );
-                    }
-
+                    couponIssueRedisService.checkCouponIssueQuantity(coupon, userId);
                     issueRequest(couponId, userId);
                 }
         );
