@@ -10,6 +10,9 @@ dependencies {
     implementation("org.redisson:redisson-spring-boot-starter:4.3.0")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+
+    // jackson
+    implementation("com.fasterxml.jackson.core:jackson-databind")
 }
 
 tasks.withType<Test> {
