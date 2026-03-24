@@ -15,9 +15,12 @@ public record CouponRedisEntity(
         Long id,
         CouponType couponType,
         Integer totalQuantity,
+        boolean availableIssueQuantity,
+
         @JsonSerialize(using = LocalDateTimeSerializer.class)
         @JsonDeserialize(using = LocalDateTimeDeserializer.class)
         LocalDateTime dateIssueStart,
+
         @JsonSerialize(using = LocalDateTimeSerializer.class)
         @JsonDeserialize(using = LocalDateTimeDeserializer.class)
         LocalDateTime dateIssueEnd
@@ -28,12 +31,20 @@ public record CouponRedisEntity(
                 coupon.getId(),
                 coupon.getCouponType(),
                 coupon.getTotalQuantity(),
+                coupon.availableIssueQuantity(),
                 coupon.getDateIssueStart(),
                 coupon.getDateIssueEnd()
         );
     }
 
     public void checkIssuableCoupon() {
+        if(!availableIssueQuantity) {
+            throw new CouponIssueException(
+                    ErrorCode.INVALID_COUPON_ISSUE_QUANTITY,
+                    String.format("발급 가능한 수량을 초과합니다. couponId: %d", id)
+            );
+        }
+
         if(!availableIssueDate()) {
             throw new CouponIssueException(
                     ErrorCode.INVALID_COUPON_ISSUE_DATE,
