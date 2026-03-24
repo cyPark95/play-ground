@@ -14,6 +14,9 @@ dependencies {
     // jackson
     implementation("com.fasterxml.jackson.core:jackson-databind")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
+
+    // caffeine
+    implementation("com.github.ben-manes.caffeine:caffeine")
 }
 
 tasks.withType<Test> {
